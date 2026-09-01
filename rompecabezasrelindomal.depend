@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1788288788 source:c:\isita jejeje\metodología de programación\rompecabezasrelindomal\main.cpp
+	<iostream>
+	<iomanip>
+	<conio.h>
+	<cstdlib>
+	<ctime>
+	<vector>
+
