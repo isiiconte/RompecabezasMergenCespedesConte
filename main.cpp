@@ -1,454 +1,227 @@
+// ranking de mejores tiempos
+//mejroar menu
+//max movimientos
+//ranking menos movimientos
+
+
+
 #include <iostream>
 #include <iomanip>
 #include <conio.h>
 #include <cstdlib>
 #include <ctime>
-#include <vector>
 using namespace std;
 
 int vacioX, vacioY;
 
-void inicializarTablero(vector<vector<int>>& tablero, int n);
-void mezclarTablero(vector<vector<int>>& tablero, int n);
-void dibujarTablero(const vector<vector<int>>& tablero, int n);
+void inicializarTablero(int tablero[5][5], int n);
+void mezclarTablero(int tablero[5][5], int n);
+void dibujarTablero(int tablero[5][5], int n);
+void mover(int tablero[5][5], int n, char tecla);
+bool verificarVictoria(int tablero[5][5], int n);
 
 int main()
 {
     int opcion;
     int n=0;
-    do{cout << "Elegi tamaño de tu rompecabezas (nxn)" << endl;
-    cout << "1. 3x3\n2. 4x4\n3. 5x5"<<endl;
-    cin >> opcion;
+    int tablero[5][5];
+    do
+    {
+        cout << "Elegi la dificultad de tu rompecabezas (nxn)" << endl;
+        cout << "1. Facil (3x3)\n2. Normal (4x4)\n3. Dificil (5x5)"<<endl;
+        cin >> opcion;
 
-    switch(opcion){
-    case 1:
-        n = 3;
-        break;
-    case 2:
-        n = 4;
-        break;
-    case 3:
-        n = 5;
-        break;
-    default:
-        cout << "Opcion invalida, porfavor elija de nuevo." << endl;
-    }
-            if(opcion != 1 && opcion!= 2 && opcion!= 3 )
+        switch(opcion)
+        {
+        case 1:
+            n = 3;
+            break;
+        case 2:
+            n = 4;
+            break;
+        case 3:
+            n = 5;
+            break;
+        default:
+            cout << "Opcion invalida, porfavor elija de nuevo." << endl;
+            break;
+        }
+        if(opcion != 1 && opcion!= 2 && opcion!= 3 )
         {
             system("pause");
             system("cls");
         }
-    }while (opcion!= 1 && opcion!= 2 && opcion != 3);
+    }
+    while (opcion!= 1 && opcion!= 2 && opcion != 3);
+    inicializarTablero(tablero, n);
+    mezclarTablero(tablero, n);
+    dibujarTablero(tablero, n);
+
+    char tecla;
+
+    do
+    {
+        tecla = _getch();
+
+        mover(tablero, n, tecla);
+
+        dibujarTablero(tablero, n);
+
+    }
+    while(tecla != 'x' && tecla != 'X');
+
+
     return 0;
 }
 
-/*#include #include #include // Para _getch() (captura de teclas en Windows)
-#include // Para rand() y srand()
-#include // Para time()
 
-using namespace std;
 
-const int TAMANO = 4;
-int tablero[TAMANO][TAMANO];
-int vacioX = 3, vacioY = 3; // Coordenadas iniciales del espacio vacío (0)
 
-// Inicializa el tablero de forma ordenada
-void inicializarTablero() {
-int cont = 1;
-for (int i = 0; i < TAMANO; i++) {
-for (int j = 0; j < TAMANO; j++) {
-tablero[i][j] = cont++;
-}
-}
-tablero[TAMANO - 1][TAMANO - 1] = 0; // El 0 representa el espacio vacío
-vacioX = TAMANO - 1;
-vacioY = TAMANO - 1;
-}
 
-// Mueve las piezas intercambiándolas con el espacio vacío (0)
-bool mover(char direccion) {
-int nX = vacioX;
-int nY = vacioY;
 
-// Determina qué pieza se moverá hacia el espacio vacío
-if (direccion == 'w' || direccion == 'W') nX++; // Mueve la pieza de abajo hacia arriba
-else if (direccion == 's' || direccion == 'S') nX--; // Mueve la pieza de arriba hacia abajo
-else if (direccion == 'a' || direccion == 'A') nY++; // Mueve la pieza de la derecha a la izquierda
-else if (direccion == 'd' || direccion == 'D') nY--; // Mueve la pieza de la izquierda a la derecha
-else return false; // Tecla no válida
 
-// Verifica que el movimiento esté dentro de los límites de la matriz
-if (nX >= 0 && nX < TAMANO && nY >= 0 && nY < TAMANO) {
-swap(tablero[vacioX][vacioY], tablero[nX][nY]);
-vacioX = nX;
-vacioY = nY;
-return true;
-}
-return false;
+
+
+
+
+
+void inicializarTablero(int tablero[5][5], int n)
+{
+    int contador = 1;
+
+    for(int i = 0; i < n; i++)
+    {
+        for(int j = 0; j < n; j++)
+        {
+            tablero[i][j] = contador;
+            contador++;
+        }
+    }
+    tablero[n - 1][n - 1] = 0;
+
+    vacioX = n - 1;
+    vacioY = n - 1;
 }
 
-// Mezcla el tablero realizando 200 movimientos aleatorios reales para asegurar que tenga solución
-void mezclarTablero() {
-char movimientos[] = {'W', 'A', 'S', 'D'};
-int movimientosRealizados = 0;
+void mezclarTablero(int tablero[5][5], int n)
+{
+    srand(time(NULL));
 
-while (movimientosRealizados < 200) {
-char mov = movimientos[rand() % 4];
-if (mover(mov)) {
-movimientosRealizados++;
-}
-}
-}
+    int movimientos = n * n * 100;
 
-// Dibuja el tablero en la consola de forma alineada
-void dibujarTablero() {
-system("cls"); // Limpia la pantalla en Windows
-cout << "=======================================" << endl;
-cout << " ROMPECABEZAS DEL 15 " << endl;
-cout << "=======================================" << endl;
-cout << " Controles: W (Arriba) | S (Abajo)" << endl;
-cout << " A (Izquierda) | D (Derecha)" << endl;
-cout << "=======================================" << endl << endl;
+    for(int k = 0; k < movimientos; k++)
+    {
+        int direccion = rand() % 4;
 
-for (int i = 0; i < TAMANO; i++) {
-for (int j = 0; j < TAMANO; j++) {
-if (tablero[i][j] == 0) {
-cout << setw(5) << " "; // Imprime espacio en blanco para el 0
-} else {
-cout << setw(5) << tablero[i][j];
-}
-}
-cout << endl << endl;
-}
-}
+        int nuevoX = vacioX;
+        int nuevoY = vacioY;
 
-// Verifica si los números están ordenados del 1 al 15
-bool verificarVictoria() {
-int cont = 1;
-for (int i = 0; i < TAMANO; i++) {
-for (int j = 0; j < TAMANO; j++) {
-// Si llegamos a la última casilla, debe estar el espacio vacío (0)
-if (i == TAMANO - 1 && j == TAMANO - 1) {
-return tablero[i][j] == 0;
-}
-if (tablero[i][j] != cont++) {
-return false;
-}
-}
-}
-return true;
+        if(direccion == 0)
+        {
+            nuevoX = vacioX - 1;
+        }
+        else if(direccion == 1)
+        {
+            nuevoX = vacioX + 1;
+        }
+        else if(direccion == 2)
+        {
+            nuevoY = vacioY - 1;
+        }
+        else if(direccion == 3)
+        {
+            nuevoY = vacioY + 1;
+        }
+
+        if(nuevoX >= 0 && nuevoX < n &&
+                nuevoY >= 0 && nuevoY < n)
+        {
+            tablero[vacioX][vacioY] = tablero[nuevoX][nuevoY];
+            tablero[nuevoX][nuevoY] = 0;
+
+            vacioX = nuevoX;
+            vacioY = nuevoY;
+        }
+    }
 }
 
-int main() {
-srand(time(0)); // Genera una semilla aleatoria real basada en el tiempo
+void dibujarTablero(int tablero[5][5], int n)
+{
+    system("cls");
 
-inicializarTablero();
-mezclarTablero(); // Mezclado intensivo corregido
+    for(int i = 0; i < n; i++)
+    {
+        for(int j = 0; j < n; j++)
+        {
+            if(tablero[i][j] == 0)
+            {
+                cout << setw(4) << " ";
+            }
+            else
+            {
+                cout << setw(4) << tablero[i][j];
+            }
+        }
 
-while (true) {
-dibujarTablero();
-
-if (verificarVictoria()) {
-cout << "¡Felicidades! Has ordenado el rompecabezas de manera exitosa." << endl;
-break;
+        cout << endl;
+    }
 }
 
-// Lee la tecla del usuario al instante sin requerir la tecla Enter
-char tecla = _getch();
-mover(tecla);
+void mover(int tablero[5][5], int n, char tecla)
+{
+    int nuevoX = vacioX;
+    int nuevoY = vacioY;
+
+    if(tecla == 'w' || tecla == 'W')
+    {
+        nuevoX = vacioX - 1;
+    }
+    else if(tecla == 's' || tecla == 'S')
+    {
+        nuevoX = vacioX + 1;
+    }
+    else if(tecla == 'a' || tecla == 'A')
+    {
+        nuevoY = vacioY - 1;
+    }
+    else if(tecla == 'd' || tecla == 'D')
+    {
+        nuevoY = vacioY + 1;
+    }
+
+    if(nuevoX >= 0 && nuevoX < n &&
+            nuevoY >= 0 && nuevoY < n)
+    {
+        tablero[vacioX][vacioY] = tablero[nuevoX][nuevoY];
+        tablero[nuevoX][nuevoY] = 0;
+
+        vacioX = nuevoX;
+        vacioY = nuevoY;
+    }
+}
+bool verificarVictoria(int tablero[5][5], int n)
+{
+
+        int cont = 1;
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+
+                if (i == n - 1 && j == n - 1)
+                {
+                    return tablero[i][j] == 0;
+                }
+                if (tablero[i][j] != cont++)
+                {
+                    return false;
+                }
+            }
+        }
+        return true;
+
+
+
 }
 
-return 0;
-}
 
-OTRA FORMA MAD LINDA
-int TAMANO;
-vector> tablero;
-int vacioX, vacioY;
-
-// Inicializa el tablero de forma ordenada
-void inicializarTablero() {
-tablero.resize(TAMANO, vector(TAMANO));
-
-int cont = 1;
-
-for (int i = 0; i < TAMANO; i++) {
-for (int j = 0; j < TAMANO; j++) {
-tablero[i][j] = cont++;
-}
-}
-
-// El 0 representa el espacio vacío
-tablero[TAMANO - 1][TAMANO - 1] = 0;
-
-vacioX = TAMANO - 1;
-vacioY = TAMANO - 1;
-}
-
-// Mueve una pieza hacia el espacio vacío
-bool mover(char direccion) {
-int nX = vacioX;
-int nY = vacioY;
-
-if (direccion == 'w' || direccion == 'W')
-nX++; // Pieza de abajo sube
-
-else if (direccion == 's' || direccion == 'S')
-nX--; // Pieza de arriba baja
-
-else if (direccion == 'a' || direccion == 'A')
-nY++; // Pieza de la derecha va a la izquierda
-
-else if (direccion == 'd' || direccion == 'D')
-nY--; // Pieza de la izquierda va a la derecha
-
-else
-return false;
-
-// Verifica límites
-if (nX >= 0 && nX < TAMANO && nY >= 0 && nY < TAMANO) {
-
-swap(tablero[vacioX][vacioY], tablero[nX][nY]);
-
-vacioX = nX;
-vacioY = nY;
-
-return true;
-}
-
-return false;
-}
-
-// Mezcla el tablero mediante movimientos válidos
-void mezclarTablero() {
-char movimientos[] = {'W', 'A', 'S', 'D'};
-
-int movimientosRealizados = 0;
-
-// Mientras más grande el tablero, más movimientos
-int cantidadMovimientos = TAMANO * TAMANO * 20;
-
-while (movimientosRealizados < cantidadMovimientos) {
-
-char mov = movimientos[rand() % 4];
-
-if (mover(mov)) {
-movimientosRealizados++;
-}
-}
-}
-
-// Dibuja el tablero
-void dibujarTablero() {
-
-system("cls");
-
-cout << "=======================================" << endl;
-cout << " ROMPECABEZAS " << TAMANO << "x" << TAMANO << endl;
-cout << "=======================================" << endl;
-
-cout << " Controles: W (Arriba) | S (Abajo)" << endl;
-cout << " A (Izquierda) | D (Derecha)" << endl;
-
-cout << "=======================================" << endl << endl;
-
-for (int i = 0; i < TAMANO; i++) {
-
-for (int j = 0; j < TAMANO; j++) {
-
-if (tablero[i][j] == 0) {
-cout << setw(5) << " ";
-}
-else {
-cout << setw(5) << tablero[i][j];
-}
-}
-
-cout << endl << endl;
-}
-}
-
-// Verifica si el tablero está ordenado
-bool verificarVictoria() {
-
-int cont = 1;
-
-for (int i = 0; i < TAMANO; i++) {
-
-for (int j = 0; j < TAMANO; j++) {
-
-// Última posición debe ser 0
-if (i == TAMANO - 1 && j == TAMANO - 1) {
-return tablero[i][j] == 0;
-}
-
-if (tablero[i][j] != cont++) {
-return false;
-}
-}
-}
-
-return true;
-}
-
-int main() {
-
-srand(time(0));
-
-// ==============================
-// ELECCIÓN DEL TAMAÑO
-// ==============================
-
-cout << "=======================================" << endl;
-cout << " ROMPECABEZAS DESLIZANTE" << endl;
-cout << "=======================================" << endl;
-
-cout << endl;
-cout << "Elige el tamano del rompecabezas." << endl;
-cout << "Por ejemplo:" << endl;
-cout << "3 = rompecabezas 3x3" << endl;
-cout << "4 = rompecabezas 4x4" << endl;
-cout << "5 = rompecabezas 5x5" << endl;
-cout << endl;
-
-do {
-cout << "Ingresa el tamano (minimo 3): ";
-cin >> TAMANO;
-
-if (TAMANO < 3) {
-cout << "El tamano debe ser 3 o mayor." << endl;
-}
-
-} while (TAMANO < 3);
-
-// Inicializar y mezclar
-inicializarTablero();
-mezclarTablero();
-
-// ==============================
-// JUEGO
-// ==============================
-
-while (true) {
-
-dibujarTablero();
-
-if (verificarVictoria()) {
-*/
-#include // Para rand() y srand()
-#include // Para time()
-
-using namespace std;
-
-const int TAMANO = 4;
-int tablero[TAMANO][TAMANO];
-int vacioX = 3, vacioY = 3; // Coordenadas iniciales del espacio vacío (0)
-
-// Inicializa el tablero de forma ordenada
-void inicializarTablero() {
-int cont = 1;
-for (int i = 0; i < TAMANO; i++) {
-for (int j = 0; j < TAMANO; j++) {
-tablero[i][j] = cont++;
-}
-}
-tablero[TAMANO - 1][TAMANO - 1] = 0; // El 0 representa el espacio vacío
-vacioX = TAMANO - 1;
-vacioY = TAMANO - 1;
-}
-
-// Mueve las piezas intercambiándolas con el espacio vacío (0)
-bool mover(char direccion) {
-int nX = vacioX;
-int nY = vacioY;
-
-// Determina qué pieza se moverá hacia el espacio vacío
-if (direccion == 'w' || direccion == 'W') nX++; // Mueve la pieza de abajo hacia arriba
-else if (direccion == 's' || direccion == 'S') nX--; // Mueve la pieza de arriba hacia abajo
-else if (direccion == 'a' || direccion == 'A') nY++; // Mueve la pieza de la derecha a la izquierda
-else if (direccion == 'd' || direccion == 'D') nY--; // Mueve la pieza de la izquierda a la derecha
-else return false; // Tecla no válida
-
-// Verifica que el movimiento esté dentro de los límites de la matriz
-if (nX >= 0 && nX < TAMANO && nY >= 0 && nY < TAMANO) {
-swap(tablero[vacioX][vacioY], tablero[nX][nY]);
-vacioX = nX;
-vacioY = nY;
-return true;
-}
-return false;
-}
-
-// Mezcla el tablero realizando 200 movimientos aleatorios reales para asegurar que tenga solución
-void mezclarTablero() {
-char movimientos[] = {'W', 'A', 'S', 'D'};
-int movimientosRealizados = 0;
-
-while (movimientosRealizados < 200) {
-char mov = movimientos[rand() % 4];
-if (mover(mov)) {
-movimientosRealizados++;
-}
-}
-}
-
-// Dibuja el tablero en la consola de forma alineada
-void dibujarTablero() {
-system("cls"); // Limpia la pantalla en Windows
-cout << "=======================================" << endl;
-cout << " ROMPECABEZAS DEL 15 " << endl;
-cout << "=======================================" << endl;
-cout << " Controles: W (Arriba) | S (Abajo)" << endl;
-cout << " A (Izquierda) | D (Derecha)" << endl;
-cout << "=======================================" << endl << endl;
-
-for (int i = 0; i < TAMANO; i++) {
-for (int j = 0; j < TAMANO; j++) {
-if (tablero[i][j] == 0) {
-cout << setw(5) << " "; // Imprime espacio en blanco para el 0
-} else {
-cout << setw(5) << tablero[i][j];
-}
-}
-cout << endl << endl;
-}
-}
-
-// Verifica si los números están ordenados del 1 al 15
-bool verificarVictoria() {
-int cont = 1;
-for (int i = 0; i < TAMANO; i++) {
-for (int j = 0; j < TAMANO; j++) {
-// Si llegamos a la última casilla, debe estar el espacio vacío (0)
-if (i == TAMANO - 1 && j == TAMANO - 1) {
-return tablero[i][j] == 0;
-}
-if (tablero[i][j] != cont++) {
-return false;
-}
-}
-}
-return true;
-}
-
-int main() {
-srand(time(0)); // Genera una semilla aleatoria real basada en el tiempo
-
-inicializarTablero();
-mezclarTablero(); // Mezclado intensivo corregido
-
-while (true) {
-dibujarTablero();
-
-if (verificarVictoria()) {
-cout << "¡Felicidades! Has ordenado el rompecabezas de manera exitosa." << endl;
-break;
-}
-
-// Lee la tecla del usuario al instante sin requerir la tecla Enter
-char tecla = _getch();
-mover(tecla);
-}
-
-return 0;
-}*/
